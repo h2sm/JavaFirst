@@ -4,6 +4,7 @@ public class third {
     public static void main(String[] args) {
         BankManagement open = new BankManagement();
         open.loadClients();
+        open.test();
     }
 }
 class BankManagement{
@@ -18,29 +19,48 @@ class BankManagement{
         mainBank.addClient("Россия Беспутина");
         mainBank.addClient("Казимир Кукуруза");
         mainBank.addClient("Василий Ебание");
-        mainBank.addMoneyToDeposit(0,0,400);
-        mainBank.addMoneyToDeposit(0,1,300);
-        mainBank.addMoneyToDeposit(0,1,350);
-        mainBank.addMoneyToDeposit(0,2,400);
-        mainBank.showMoneyOnAllDeps(0 );
-        mainBank.withdrawMoneyFromDeposit(0,2,200);
-        mainBank.addMoneyToDeposit(0, 0, 100);
-        mainBank.deleteClient(0);
+//        mainBank.showMoneyOnAllDeps(0 );
+//        mainBank.addMoneyToDeposit(0, 0, 100);
+//        mainBank.withdrawMoneyFromDeposit(0,2,200);
+        //mainBank.deleteClient(0);
         //mainBank.deleteOneDeposit(0, 1);
     }
-    void operations(){
-        for (int i =0; i<8644;i++){//каждая итерация - новый час
-            int x = (int) (Math.random()) *10;
-            switch (x) {
+    void test(){
+        for (int i=0; i<100;i++){
+            Random x = new Random();
+            int y = x.nextInt(100);
+            switch (y){
+                case '0': mainBank.addMoneyToDeposit(0,0,400);
+                    break;
                 case '1':
+                    mainBank.addMoneyToDeposit(0,1,300);
+                    break;
+                case '2':
+                    mainBank.addMoneyToDeposit(0,1,350);
+                    break;
+                case '3':
+                    mainBank.addMoneyToDeposit(0,2,400);
+                    break;
+                case '4':
+                    mainBank.deleteClient(0);
+                    break;
+                case '5':
+                    mainBank.deleteOneDeposit(0,2);
+                    break;
+                case '6':
+                    mainBank.openNewDeposit(0);
+                    break;
+                case '7':
+                    mainBank.addMonthlyRate(0);
+                    break;
             }
         }
-
     }
 }
 class Bank{
     ArrayList<String> listOfClients = new ArrayList<>();//список клиентов
     ArrayList<Client> clients = new ArrayList<>();//массив клиентов и их депозитов
+
     void addClient(String nameOfClient){//добавление клиента
         if(listOfClients.contains(nameOfClient)){//проверка на повторное добавление
             System.out.println("Клиент " + nameOfClient+ " уже есть");
@@ -86,12 +106,17 @@ class Bank{
         x.withdrawMoneyFromDeposit(sum,numOfDep);
         System.out.println("Клиент " + listOfClients.get(ID) + " снял " + sum + " с депозита " + numOfDep + ". Остаток:" + x.showSumOnEachDeposit());
     }
+    void addMonthlyRate(int ID){
+        Client x = clients.get(ID);
+        x.monthRate();
+    }
     //разместить массив клиентов
     //добавление + удаление
 }
 class Client{
     ArrayList<Integer> deposits = new ArrayList<>();
     String clientName;
+    int rate = 5; //ставка - 5 процентных пунктов
     double bankCapit = 100000.0;//запас банкнот банка
     Client(String name){
         this.clientName = name;
@@ -122,7 +147,12 @@ class Client{
         return deposits;
     }
     Integer showSumOnOneDeposit(Integer numOfDeposit){//сумма денег на определенном депозите
-        return deposits.get(numOfDeposit);
+        if (deposits.size() < numOfDeposit) {
+            return 0;
+        }
+        else {
+            return deposits.get(numOfDeposit);
+        }
     }
     void withdrawMoneyFromDeposit(Integer sum, Integer numOfDeposit){//снять сумму с определенного депозита
         if ((showSumOnOneDeposit(numOfDeposit) - sum ) > 0 && capitalWithdraw(sum)) {//если денег для снятия достаточно как у банка, так и у клиента
@@ -159,5 +189,14 @@ class Client{
     void capitalAdd(Integer sum){//добавление денег в капитал банка
         bankCapit+=sum;
     }
+    void monthRate(){
+        for (int i = 0; i< deposits.size(); i++){
+            int x = deposits.get(i);
+            int y = x*rate/100;
+            x+=y;
+            deposits.set(i,x);
+        }
+    }
+
 
 }
