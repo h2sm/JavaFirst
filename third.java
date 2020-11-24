@@ -25,49 +25,51 @@ class BankManagement{
         Random randID = new Random();//рандом для выделения клиента
         Random randNumOfDep = new Random();//рандом для выделения номера депозита
         Random randSum = new Random();//рандом для создания суммы
-        for (int i=0; i<100;i++){
+        for (int i=0; i<31536000;i++){
             int clientID = randID.nextInt(mainBank.getCountOfClients());
             int numOfDep = randNumOfDep.nextInt(5);
             int sum = randSum.nextInt(9999999);
             //вместо sum передавать массив с банкнотами(генерировать случайный moneystack)
-            switch (x.nextInt(8)) {//выводим сообщения здесь!!!!!!
+
+            switch (x.nextInt(4)) {//выводим сообщения здесь!!!!!!
                 case 0 -> {
                     try {
                         mainBank.addMoneyToDeposit(clientID, numOfDep, sum);
+                        System.out.println("Клиент " + mainBank.getName(clientID) + " добавил " + sum + " на счет " + numOfDep +". Баланс: "+ mainBank.showMoneyOnAllDeps(clientID));
                     } catch (IllegalDepositException e) {
                         e.printStackTrace();
                     }
-                    System.out.println("Клиент " + mainBank.getName(clientID) + " добавил " + sum + " на счет " + numOfDep);
-
                 }
-//                case 2 ->{
+//                case 1 ->{
+//                    String name = mainBank.getName(clientID);
 //                    try{
 //                        mainBank.deleteClient(clientID);
 //                    }
-//                    catch (NoSuchClient e){
+//                    catch (NoSuchClient | IllegalDepositException e){
 //                        e.printStackTrace();
 //                    }
-//                    System.out.println("Клиент " + mainBank.getName(clientID) + " удален");
+//                    System.out.println("Клиент " + name + " удален");
 //
 //                }
-                case 3 -> {
+                case 2 -> {
                     try {
                         mainBank.deleteOneDeposit(clientID, numOfDep);
                     }
                     catch (IllegalDepositException e){
                         e.printStackTrace();
                     }
-                    System.out.println("Клиент "  + " удалил депозит");
+                    System.out.println("Клиент " +mainBank.getName(clientID) + " удалил депозит");
                 }
-                case 4 ->{
+                case 3 ->{
                     try {
                         mainBank.openNewDeposit(clientID);
+                        System.out.println("Клиент " +mainBank.getName(clientID) +  " открыл депозит "  +  ". Остаток: " + mainBank.showMoneyOnAllDeps(clientID));
                     }
-                    catch (TooManyDeposits e){
+                    catch (TooManyDeposits | IllegalDepositException e){
                         e.printStackTrace();
                     }
                 }
-//                case 5 -> mainBank.addMonthlyRate(clientID);
+//                case 4 -> mainBank.addMonthlyRate(clientID);
                 }
             }
         }
@@ -88,13 +90,14 @@ class Bank{
     }
 
     String getName(int ID) throws NoSuchClient {
-        if (listOfClients.contains(ID)){
-            return listOfClients.get(ID);
+        String name;
+        try{
+            name = listOfClients.get(ID);
         }
-        else {
-            System.out.println(listOfClients.contains(ID));
-            throw new NoSuchClient("Нет запрашиваемого клиента");
-        }
+        catch (IndexOutOfBoundsException e){
+            throw new NoSuchClient("Нет такого клиента");
+            }
+        return name;
     }
     void addClient(String nameOfClient) throws TooManyDeposits {//добавление клиента
         if(listOfClients.contains(nameOfClient)){//проверка на повторное добавление
@@ -107,29 +110,57 @@ class Bank{
             System.out.println(nameOfClient + " добавлен");
         }
     }
-    void deleteClient(int ID) throws NoSuchClient {//процедура удаления клиента + ПЕРЕДАВАЙ Client
+    void deleteClient(int ID) throws NoSuchClient, IllegalDepositException {//процедура удаления клиента + ПЕРЕДАВАЙ Client
+        Object k;
+        try{
+            k = listOfClients.get(ID);
+        }
+        catch (IndexOutOfBoundsException e){
+            throw new IllegalDepositException("Клиента с данным ID " + ID + " не существует");
+        }
+        String name = getName(ID);
         Client x = map.get(listOfClients.get(ID));
         x.deleteAllDeposits();//удаляем все его депозиты
         listOfClients.remove(ID);//удаляем клиента из списков клиента
-        //System.out.println(name + " удален");//здоровья погибшим
-        //showMoneyOnAllDeps(ID); // для проверки
+        map.remove(name);
+        //System.out.println(listOfClients + "listOfClients --- " + map + "map---- "  );
     }
-    void deleteOneDeposit(int ID, int numOfDep) throws IllegalDepositException {//процедура удаления определенного депозита
-        Client x =map.get(listOfClients.get(ID));
+    void deleteOneDeposit(int ID, int numOfDep) throws NoSuchClient, IllegalDepositException {//процедура удаления определенного депозита
+        Object k;
+        try{
+            k = listOfClients.get(ID);
+        }
+        catch (IndexOutOfBoundsException e){
+            throw new NoSuchClient("Удаление депозиита невозможно, нет клиента с ID " + ID + ". Массив: " + listOfClients);
+        }
+        Client x =map.get(k);
         x.deleteDeposit(numOfDep);
         System.out.println("Клиент " + listOfClients.get(ID) + " удалил депозит " + numOfDep +  ". Остаток: " + x.showSumOnEachDeposit());
     }
-    void openNewDeposit(int ID) throws TooManyDeposits {//открытие депозита
-        Client x =map.get(listOfClients.get(ID));
+    void openNewDeposit(int ID) throws TooManyDeposits, IllegalDepositException {//открытие депозита
+        Object k;
+        try {
+            k = listOfClients.get(ID);
+        }
+        catch (IndexOutOfBoundsException e){
+            throw new IllegalDepositException("Открыть депозит не удалось. ");
+        }
+        Client x =map.get(k);
         x.addDeposit();
-            System.out.println("Клиент " + listOfClients.get(ID) + " открыл депозит "  +  ". Остаток: " + x.showSumOnEachDeposit());
     }
-    void showMoneyOnAllDeps(int ID){//показать сумму всех депозитов
+    String showMoneyOnAllDeps(int ID){//показать сумму всех депозитов
         Client x =map.get(listOfClients.get(ID));
-        System.out.println("У клиента " +listOfClients.get(ID) +" сумма на депозитах "+ x.showSumOnEachDeposit());
+        return x.showSumOnEachDeposit().toString();
     }
     void addMoneyToDeposit(int ID, int numOfDep, int sum) throws IllegalDepositException {//добавить денег на определенный депозит
-        Client x =map.get(listOfClients.get(ID));
+        Object k;
+        try {
+            k = listOfClients.get(ID);
+        }
+        catch (IndexOutOfBoundsException e){
+            throw new IllegalDepositException("Невозможно зачислить средства ");
+        }
+        Client x =map.get(k);
         x.addSumOnDeposit(sum,numOfDep);
         try {
             bankCapit.selectMoneyStackBy(sum);
@@ -137,7 +168,6 @@ class Bank{
         catch (NotEnoughBanknotesException e) {
             e.printStackTrace();
         }
-        //System.out.println("Клиент " + listOfClients.get(ID) + " добавил денег " + sum + " на депозит " + numOfDep + ". Остаток:" + x.showSumOnEachDeposit());
     }
     void withdrawMoneyFromDeposit(int ID, int numOfDep, int sum) throws IllegalDepositException, NotEnoughBanknotesException {//снять денег с определенного депозита
         Client x = map.get(listOfClients.get(ID));
