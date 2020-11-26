@@ -21,25 +21,37 @@ class BankManagement{
         mainBank.addClient("Василий");
     }
     void test() throws NoClientsException, NoSuchClient, TooManyDeposits {
-        Random x = new Random();//рандом для свитча
+        Random x = new Random();//рандом для свитча и массива MoneyStack
         Random randID = new Random();//рандом для выделения клиента
         Random randNumOfDep = new Random();//рандом для выделения номера депозита
         Random randSum = new Random();//рандом для создания суммы
-        for (int i=0; i<31536000;i++){
+        for (int i=0; i<31536000;i++){//один год в секундах
             int clientID = randID.nextInt(mainBank.getCountOfClients());
             int numOfDep = randNumOfDep.nextInt(5);
-            int sum = randSum.nextInt(9999999);
-            //вместо sum передавать массив с банкнотами(генерировать случайный moneystack)
+            int sum = randSum.nextInt(5553535);
+            MoneyStack clientMoneyStack = new MoneyStack(new int[] {7,6,5,4,3,2,1});//2587 Убитых Енотов - рандомный moneystack
 
-            switch (x.nextInt(4)) {//выводим сообщения здесь!!!!!!
+            if(i%2592000==0 && i!=0){//начисление процентов каждый месяц
+                System.out.println("------ПЕРЕРАСЧЕТ ПРОЦЕНТИКОВ------");
+                mainBank.addMonthlyRate();
+            }
+            switch (x.nextInt(5)) {
                 case 0 -> {
                     try {
-                        mainBank.addMoneyToDeposit(clientID, numOfDep, sum);
-                        System.out.println("Клиент " + mainBank.getName(clientID) + " добавил " + sum + " на счет " + numOfDep +". Баланс: "+ mainBank.showMoneyOnAllDeps(clientID));
+                        mainBank.addMoneyToDeposit(clientID, numOfDep, clientMoneyStack);
+                        System.out.println("Клиент " + mainBank.getName(clientID) + " добавил " + clientMoneyStack.moneyStackToIntTransition(clientMoneyStack) + " на счет " + numOfDep +". Баланс: "+ mainBank.showMoneyOnAllDeps(clientID));
                     } catch (IllegalDepositException e) {
                         e.printStackTrace();
                     }
                 }
+//                case 4 ->{
+//                    try {
+//                        mainBank.withdrawMoneyFromDeposit(clientID,numOfDep,sum);
+//                    }
+//                    catch (IllegalDepositException | NotEnoughBanknotesException e){
+//                        e.printStackTrace();
+//                    }
+//                }
 //                case 1 ->{
 //                    String name = mainBank.getName(clientID);
 //                    try{
@@ -51,33 +63,32 @@ class BankManagement{
 //                    System.out.println("Клиент " + name + " удален");
 //
 //                }
-                case 2 -> {
-                    try {
-                        mainBank.deleteOneDeposit(clientID, numOfDep);
-                    }
-                    catch (IllegalDepositException e){
-                        e.printStackTrace();
-                    }
-                    System.out.println("Клиент " +mainBank.getName(clientID) + " удалил депозит");
-                }
-                case 3 ->{
-                    try {
-                        mainBank.openNewDeposit(clientID);
-                        System.out.println("Клиент " +mainBank.getName(clientID) +  " открыл депозит "  +  ". Остаток: " + mainBank.showMoneyOnAllDeps(clientID));
-                    }
-                    catch (TooManyDeposits | IllegalDepositException e){
-                        e.printStackTrace();
-                    }
-                }
-//                case 4 -> mainBank.addMonthlyRate(clientID);
-                }
+//                case 2 -> {
+//                    try {
+//                        mainBank.deleteOneDeposit(clientID, numOfDep);
+//                        System.out.println("Клиент " +mainBank.getName(clientID) + " удалил депозит" + numOfDep);
+//                    }
+//                    catch (IllegalDepositException e){
+//                        e.printStackTrace();
+//                    }
+//                }
+//                case 3 ->{
+//                    try {
+//                        mainBank.openNewDeposit(clientID);
+//                        System.out.println("Клиент " +mainBank.getName(clientID) +  " открыл депозит "  +  ". Остаток: " + mainBank.showMoneyOnAllDeps(clientID));
+//                    }
+//                    catch (TooManyDeposits | IllegalDepositException e){
+//                        e.printStackTrace();
+//                    }
+//                }
             }
         }
     }
+}
 
 class Bank{
     private ArrayList<String> listOfClients = new ArrayList<>();//список клиентов
-    final MoneyStack bankCapit = new MoneyStack(new int[] {1000000000,1000000000,1000000000,1000000000,1000000000,1000000000,1000000000});
+    final MoneyStack bankCapit = new MoneyStack(new int[] {10000000,1000000,1000000,1000000,100000,100000,1000000});//количество банкнот каждого номинала
     private HashMap<String, Client> map = new HashMap<>() ;
     public ArrayList<String> getListOfClients() {
         return listOfClients;
@@ -135,7 +146,7 @@ class Bank{
         }
         Client x =map.get(k);
         x.deleteDeposit(numOfDep);
-        System.out.println("Клиент " + listOfClients.get(ID) + " удалил депозит " + numOfDep +  ". Остаток: " + x.showSumOnEachDeposit());
+//        System.out.println("Клиент " + listOfClients.get(ID) + " удалил депозит " + numOfDep +  ". Остаток: " + x.showSumOnEachDeposit());
     }
     void openNewDeposit(int ID) throws TooManyDeposits, IllegalDepositException {//открытие депозита
         Object k;
@@ -152,7 +163,7 @@ class Bank{
         Client x =map.get(listOfClients.get(ID));
         return x.showSumOnEachDeposit().toString();
     }
-    void addMoneyToDeposit(int ID, int numOfDep, int sum) throws IllegalDepositException {//добавить денег на определенный депозит
+    void addMoneyToDeposit(int ID, int numOfDep, MoneyStack clientMoneyStack) throws IllegalDepositException {//добавить денег на определенный депозит
         Object k;
         try {
             k = listOfClients.get(ID);
@@ -161,22 +172,22 @@ class Bank{
             throw new IllegalDepositException("Невозможно зачислить средства ");
         }
         Client x =map.get(k);
-        x.addSumOnDeposit(sum,numOfDep);
-        try {
-            bankCapit.selectMoneyStackBy(sum);
-        }
-        catch (NotEnoughBanknotesException e) {
-            e.printStackTrace();
-        }
+        x.addSumOnDeposit(clientMoneyStack,numOfDep);
+        bankCapit.acceptMoneyStack(clientMoneyStack);
+
     }
     void withdrawMoneyFromDeposit(int ID, int numOfDep, int sum) throws IllegalDepositException, NotEnoughBanknotesException {//снять денег с определенного депозита
         Client x = map.get(listOfClients.get(ID));
         x.withdrawMoneyFromDeposit(sum,numOfDep);
         System.out.println("Клиент " + listOfClients.get(ID) + " снял " + sum + " с депозита " + numOfDep + ". Остаток:" + x.showSumOnEachDeposit());
     }
-    void addMonthlyRate(int ID){
-        Client x = map.get(listOfClients.get(ID));
-        x.monthRate();
+    void addMonthlyRate() throws NoClientsException, NoSuchClient {
+        int data[] = new int[2];
+        for (int i = 0; i< getCountOfClients(); i++){
+            Client x = map.get(listOfClients.get(i));
+            data = x.monthRate();
+            System.out.println("Пересчет: " + getName(i) + data[0] + "---->" + data[1]);
+        }
     }
     int getCountOfClients() throws NoClientsException {
         if (listOfClients.size() == 0){
@@ -192,9 +203,10 @@ class Client{
     Client(String name){
         this.clientName = name;
     }
-    void addSumOnDeposit(int sum, int numOfDeposit) throws IllegalDepositException {//добавить сумму на определенный депозит
-            if (deposits.size() > numOfDeposit) {//если зачисление на счет, который еще не открыли
-                deposits.set(numOfDeposit, sum + deposits.get(numOfDeposit));
+    void addSumOnDeposit(MoneyStack clientMoneyStack, int numOfDeposit) throws IllegalDepositException {//добавить сумму на определенный депозит
+        int summary = clientMoneyStack.moneyStackToIntTransition(clientMoneyStack);
+        if (deposits.size() > numOfDeposit) {//если зачисление на счет, который еще не открыли
+                deposits.set(numOfDeposit, summary + deposits.get(numOfDeposit));
             }
             else {
                 throw new IllegalDepositException("Депозит " + numOfDeposit + " еще не открыт у клиента " + clientName );
@@ -248,29 +260,24 @@ class Client{
     void deleteAllDeposits(){//удаляем все депозиты
         deposits.clear();//удаляй его вася
     }
-    void capitalWithdraw(int sum) {//вычитание денег из капитала при снятии средств клиентом. возвращает тру, если капитал достаточен
-            System.out.println("Дорогие друзья..... Всё! Денег нет, но вы держитесь");
-            System.exit(0);//банкротство. рип вкладчик 2020-2020
-
-
-    }
-    void capitalAdd(int sum){//добавление денег в капитал банка
-
-    }
-    void monthRate(){
+    int[] monthRate(){//пересчет вкладов с учетом процента rate;
+        int x=0, y=0;
+        int data[] = new int[2];
         for (int i = 0; i< deposits.size(); i++){
-            int x = deposits.get(i);
-            int y = x*rate/100;
-            x+=y;
+            data[0] = deposits.get(i);//получаем значение из депозита
+            data[1] = data[0]*rate/100;//высчитываем процент
+            data[0]+=data[1];//добавляем
             deposits.set(i,x);
         }
-        System.out.println("Пересчет для клиента " + clientName + ": " + showSumOnEachDeposit());
+       return data;
+        //System.out.println("Пересчет для клиента " + clientName + ": " + showSumOnEachDeposit());
     }
+
 }
 class MoneyStack{//когда клиент вносит деньги - вызываем класс
-    public static final int COUNT = 7;//капсом пишут константы
-    private static final int NOMINALS[] = {1, 5, 10, 50, 100, 500, 1000}; //номиналы
-    private int amounts[] = new int[COUNT]; //количество банкнот
+    public static final int COUNT = 7;//капсом пишут КОНСТАНТЫ
+    private static final int NOMINALS[] = {1, 5, 10, 50, 100, 500, 1000}; //НОМИНАЛЫ
+    private int amounts[] = new int[COUNT]; //КОЛИЧЕСТВО банкнот
     MoneyStack(int[] amounts){
         this.amounts = amounts;
     }
@@ -278,7 +285,7 @@ class MoneyStack{//когда клиент вносит деньги - вызы�
     //когда клиент забирает  - выделяет подпачки банкнот (выделять %1000, %500, %100)
     //генерировать исключения NotEnoughBanknotesException - обрабатывать исключение в switch
     //массив из у.е.
-    MoneyStack selectMoneyStackBy(int sum) throws NotEnoughBanknotesException {//выбрать стек на сумму
+    MoneyStack selectMoneyStackBy(int sum) throws NotEnoughBanknotesException {//выдача пачки банкнот клиенту
         int newAmounts[] = new int[COUNT];
         for (int i=COUNT-1; i>=0;i--){
             while (sum>=NOMINALS[i] && amounts[i]>0){
@@ -294,10 +301,23 @@ class MoneyStack{//когда клиент вносит деньги - вызы�
            throw new NotEnoughBanknotesException("Денег нет, но вы держитесь");
        }
     }
-//    MoneyStack withdrawMoneyStack(int sum) throws NotEnoughBanknotesException{
-//        int newAmounts[] = new int[COUNT];
-//        for (int i)
-//    }
+    void acceptMoneyStack(MoneyStack moneyStack){//принятие пачки банкнот и добавление ее в капитал банка
+        for (int i = COUNT-1; i>=0;i--){
+            while (moneyStack.amounts[i] >=NOMINALS[i] && amounts[i]>0){
+                moneyStack.amounts[i]--;
+                amounts[i]++;
+            }
+        }
+
+    }
+    int moneyStackToIntTransition(MoneyStack moneyStack){//преобразовать MoneyStack в сумму
+        int sum=0;
+        for (int i = 0; i<COUNT; i++){
+            sum+=amounts[i] * NOMINALS[i];
+        }
+        return sum;
+    }
+
 }
 class BankException extends Exception{
     //исключения наследуются через этот класс
@@ -310,7 +330,6 @@ class NotEnoughBanknotesException extends BankException{
         super(msg);
     }
 }
-
 class ClientException extends Exception{
     ClientException(String msg){super(msg);}
 }
