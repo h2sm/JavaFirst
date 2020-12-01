@@ -31,7 +31,7 @@ class BankManagement{
             int numOfDep = x.nextInt(5);
             int sum = x.nextInt(5553535);
             int sum1 = x.nextInt(1000);
-            MoneyStack clientMoneyStack = new MoneyStack(new int[] {sum1,sum1,sum1,sum1,sum1,sum1,sum1});//2587 Убитых Енотов - рандомный moneystack
+            MoneyStack clientMoneyStack = new MoneyStack(new int[] {sum1,sum1,sum1,sum1,sum1,sum1,sum1});//рандомный moneystack
 
             if(i%(30*24)==0 && i!=0){//начисление процентов каждый месяц
                 System.out.println("------ПЕРЕРАСЧЕТ ПРОЦЕНТИКОВ------");
