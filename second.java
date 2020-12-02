@@ -1,6 +1,7 @@
+import java.util.Random;
+
 public class second {
     public static void main(String[] args) {
-
         Complex x = new Complex(2, 3);
         Complex y = new Complex(4, -2);
 
@@ -9,10 +10,12 @@ public class second {
         System.out.println("Multiply is " + Complex.toMultiply(x,y));
         System.out.println("Divide is " + Complex.toDivide(x,y));
         }
+
 }
 class Complex{
     private double real;
     private double imaginary;
+    Complex y = new Complex(new Random().nextInt(10), new Random().nextInt(10));
     public Complex(double real, double imaginary) {
        this.real = real;
        this.imaginary = imaginary;
