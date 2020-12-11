@@ -11,7 +11,8 @@
     //        x.NOT();
     //        x.OR();
     //        x.setBit();
-            x.shiftBitLeft(5);
+            //x.shiftBitLeft(5);
+            x.shiftBitRight(5);
     //        x.XOR();
 
         }
@@ -81,6 +82,34 @@
             for (int i = 0; i < 128; i++) {
                 System.out.print(bitInteger[i]);
             }
-            System.out.println(answer + " size " + answer.size());
+            System.out.println(answer);
         }
+        void shiftBitRight(int shift){//СМЕЩЕНИЕ ВПРАВО!!
+            int[] bitInteger = new int[128];//здесь хранится 128битное число
+            ArrayList<Integer>answer = new ArrayList<>();
+            char[] digits = number.toString(2).toCharArray();
+            int x =0;
+            for (char digit : digits) {//преобразовываю в int char-ы
+                digit -= '0';
+                bitInteger[x] = digit;
+                x++;
+            }
+
+            int[] shiftingBits = new int[shift];//массив под смещаемые биты
+            int counterA=0;
+            for (int i = 127; i > 128 - shift-1; i--) {
+                shiftingBits[counterA]=bitInteger[i];//получаем смещаемые биты
+                counterA++;
+            }
+            int iter = shift;
+            for (int i = 0; i<128;i++) {
+                if (i<shift) {answer.add(i, shiftingBits[iter-1]);iter--;}//переносим наш bitinteger
+                else answer.add(i,bitInteger[i-shift]);
+            }
+            for (int i = 0; i < 128; i++) {
+                System.out.print(bitInteger[i]);
+            }
+            System.out.println(answer + " size" + answer.size());
+        }
+
     }
