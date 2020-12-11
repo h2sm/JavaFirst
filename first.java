@@ -1,21 +1,20 @@
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        //long a, b;//64+64 - одно число
         bigInt x = new bigInt();
-        x.AND();
-        x.delBit();
-        x.NOT();
-        x.OR();
-        x.setBit();
-        x.shiftBit();
-        x.XOR();
+//        x.AND();
+//        x.delBit();
+//        x.NOT();
+//        x.OR();
+//        x.setBit();
+        x.shiftBit(2);
+//        x.XOR();
+
     }
-
-
 }
 class bigInt{
     BigInteger number = BigInteger.probablePrime(128, new Random());
@@ -23,8 +22,9 @@ class bigInt{
     void AND (){
         System.out.println("Операция И");
         BigInteger firstNumber = number.and(number2);
-        System.out.println(number + " & " + number2 + " = " + firstNumber);
-
+        System.out.println(number.toString(2) + " & ");
+        System.out.println(number2.toString(2));
+        System.out.println( firstNumber.toString(2));
     }
     void OR(){
         System.out.println("Операция ИЛИ");
@@ -57,28 +57,27 @@ class bigInt{
         System.out.println("Начальный: " + number.toString(2));
         System.out.println("Конечный:  " + sixthNumber.toString(2));
     }
-    void shiftBit() {
-        Scanner scan = new Scanner(System.in);
-        String answer;
-        int x;
-        //long - разбить на 4 части
-        //
-        System.out.println("Сдвиг бита. Влево или Вправо?");
-        if ((answer = scan.next()).equals("Влево")) {
-            System.out.println("На сколько бит сдвинуть?");
-            x = scan.nextInt();
-            BigInteger seventhNumber = number.shiftLeft(x);
-            System.out.println("Было: " + number.toString(2));
-            System.out.println("Стало: " + seventhNumber.toString(2));
+    void shiftBit(int shift){
+        int[] bitInteger = new int[128];//здесь хранится 128битное число
+        ArrayList<Integer>answer = new ArrayList<>();
+        char[] digits = number.toString(2).toCharArray();
+        int x =0;
+        for (char digit : digits) {//преобразовываю в int char-ы
+            digit -= '0';
+            bitInteger[x] = digit;
+            x++;
+
         }
-        if (answer.equals("Вправо")) {
-            System.out.println("На сколько бит сдвинуть?");
-            x = scan.nextInt();
-            BigInteger seventhNumber = number.shiftRight(x);
-            System.out.println("Было: " + number.toString(2));
-            System.out.println("Стало: " + seventhNumber.toString(2));
-        } else {
-            System.out.println("Ладно.");
+        //смещение влево
+        int[] shiftingBits = new int[shift];//массив под смещаемые биты
+        for (int i = 0; i < shift; i++) {
+            shiftingBits[i]=bitInteger[i];//получаем смещаемые биты
+        }
+        for (int i = 0; i<128;i++) {
+            while (i < 128 - shift-1) answer.add(i, bitInteger[i + shift]);//переносим наш bitinteger
+
+            while (answer.size() != 128) answer.add(i,shiftingBits[i]);//вставляем в конец смещенные биты
+
         }
     }
 }
