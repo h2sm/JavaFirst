@@ -11,7 +11,7 @@
     //        x.NOT();
     //        x.OR();
     //        x.setBit();
-            x.shiftBit(2);
+            x.shiftBitLeft(5);
     //        x.XOR();
 
         }
@@ -57,7 +57,7 @@
             System.out.println("Начальный: " + number.toString(2));
             System.out.println("Конечный:  " + sixthNumber.toString(2));
         }
-        void shiftBit(int shift){//СМЕЩЕНИЕ ТОЛЬКО ВЛЕВО!
+        void shiftBitLeft(int shift){//СМЕЩЕНИЕ ТОЛЬКО ВЛЕВО!
             int[] bitInteger = new int[128];//здесь хранится 128битное число
             ArrayList<Integer>answer = new ArrayList<>();
             char[] digits = number.toString(2).toCharArray();
@@ -72,13 +72,14 @@
             for (int i = 0; i < shift; i++) {
                 shiftingBits[i]=bitInteger[i];//получаем смещаемые биты
             }
+            int iter = 0;
             for (int i = 0; i<128;i++) {
-                int iter = 0;
                 if(i<128-shift) answer.add(i, bitInteger[i + shift]);//переносим наш bitinteger
-                else answer.add(i,shiftingBits[iter++]);//вставляем в конец смещенные биты
+                else {answer.add(i,shiftingBits[iter]);//вставляем в конец смещенные биты
+                iter++;}
             }
             for (int i = 0; i < 128; i++) {
-                System.out.println(bitInteger[i]);
+                System.out.print(bitInteger[i]);
             }
             System.out.println(answer + " size " + answer.size());
         }
